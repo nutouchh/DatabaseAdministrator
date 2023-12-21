@@ -2,15 +2,6 @@
 
 from django.db import models
 
-# Create your models here.
-# class Sales(models.Model):
-#     title=models.CharField(max_length=250)
-#     author=models.CharField(max_length=250)
-#     price=models.FloatField(default=0)
-#
-#     def __str__(self) -> str:
-#         return str(self.title)
-
 class Assortment(models.Model):
     product = models.CharField(max_length=250)
     brand = models.CharField(max_length=250)

@@ -30,20 +30,7 @@
                                     beginAtZero: true
                                 }
                             }
-                        },
-                        plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                var label = context.label || '';
-                                var value = context.formattedValue;
-                                var percent = context.dataset.data[context.dataIndex] / context.dataset.data.reduce((a, b) => a + b) * 100;
-
-                                return label + ': ' + value + ' (' + percent.toFixed(2) + '%)';
-                            }
                         }
-                    }
-                }
                     });
                 });
             </script>
@@ -59,7 +46,6 @@
                         type: 'line',
                         data: {
                             labels: {{ labels1|safe }},
-
                             datasets: [{
                                 label: 'Руб',
                                 borderColor: "rgba(10, 161, 192, 0.9)",
@@ -73,7 +59,7 @@
                             }]
                         },
                         options: {
-        responsive: true, // Адаптивность размеров
+                            responsive: true,
                             scales: {
                                 y: {
                                     beginAtZero: true
