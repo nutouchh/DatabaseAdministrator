@@ -1,61 +1,85 @@
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+
+from sales.models import Sales
 from django.shortcuts import render
-from django.db.models import Count,F,Sum,Avg
-from django.db.models.functions import ExtractYear,ExtractMonth
-from django.http import JsonResponse
-from .models import Sales, Purchase
-from .utils import (
-    months,colorDanger,
-    colorPrimary,colorSuccess,
-    generate_color_palette,get_year_dict)
-# Create your views here.
-
-def display_charts(request):
-    return render(request, 'charts.html', {})
-
-def filter_options(request):
-    merged_purchases=Purchase.objects.annotate(
-        year=ExtractYear(
-            'time_created'
-        )).values(
-            'year'
-            ).order_by(
-                '-year'
-                ).distinct()
-    options= [purchase['year'] for purchase in merged_purchases]
-
-    return JsonResponse(data={
-        'options':options
-    })
 
 
+def get_sum_rub_for_fo():
+    sales_data = Sales.objects.values('region__federal_district').annotate(total_rub=Sum('rub'))
 
-def get_annual_sales(request, year):
-    purchases=Purchase.objects.filter(time_created__year=year)
-    merged_purchases=purchases.annotate(
-        price=F('book__price')
-    ).annotate(month=ExtractMonth('time_created')).values(
-        'month'
-    ).annotate(
-        average=Sum(
-            'book__price'
-        )
-    ).values(
-        'month',
-        'average'
-    ).order_by('month')
-    sales_dict=get_year_dict()
-    for merge in merged_purchases:
-        sales_dict[months[merge['month']-1]]=round(merge['average'], 2)
+    labels = [entry['region__federal_district'] for entry in sales_data]
+    data = [int(entry['total_rub']) for entry in sales_data]
 
-    return JsonResponse({
-        'title':f'Sales in {year}',
-        'data':{
-            'labels':list(sales_dict.keys()),
-            'datasets':[{
-                'label':'Amount (KSHS)',
-                'backgroundColor':generate_color_palette(7),
-                'borderColor':generate_color_palette(5),
-                'data':list(sales_dict.values())
-            }]
-        }
-    })
+    return labels, data
+
+def get_manufacturer_proportion():
+    sales_data = Sales.objects.values('product__manufacturer').annotate(total_unit=Sum('unit'))
+
+    labels = [entry['product__manufacturer'] for entry in sales_data]
+    data = [int(entry['total_unit']) for entry in sales_data]
+
+    return labels, data
+
+def get_product_bar():
+    sales_data = Sales.objects.filter(
+        region__region='Москва и область',
+        product__manufacturer='Аванта'
+    ).values('product__product').annotate(
+        total_rub=Sum('rub'),
+        total_units=Sum('unit')
+    )
+
+    labels = [entry['product__product'] for entry in sales_data]
+    quantities_sold = [int(entry['total_units']) for entry in sales_data]
+    sales_in_rubles = [int(int(entry['total_rub']) * 0.01) for entry in sales_data]
+
+    labels = labels[:10]
+    quantities_sold = quantities_sold[:10]
+    sales_in_rubles = sales_in_rubles[:10]
+
+    return labels, quantities_sold, sales_in_rubles
+
+def get_bubble():
+    sales_data = Sales.objects.filter(product__manufacturer='Аванта').values('product__brand').annotate(
+        total_rub=Sum('rub'),
+        total_units=Sum('unit')
+    )
+
+    labels = [entry['product__brand'] for entry in sales_data]
+    x_values = [int(entry['total_rub']) for entry in sales_data]
+    y_values = [int(entry['total_units']) for entry in sales_data]
+    r_values = [int(int(entry['total_rub']) * 0.0000004) for entry in sales_data]
+
+    labels = labels
+    x_values = x_values
+    y_values = y_values
+    r_values = r_values
+
+    data = [
+        {'x': x_values[index], 'y': y_values[index], 'r': r_values[index]}
+        for index in range(len(labels))
+    ]
+
+    return labels, data
+
+@login_required
+def chart(request):
+    labels1, data1 = get_sum_rub_for_fo()
+    labels2, data2 = get_manufacturer_proportion()
+    labels3, quantities_sold, sales_in_rubles = get_product_bar()
+    labels4, data4 = get_bubble()
+
+    context = {
+        'labels1': labels1,
+        'data1': data1,
+        'labels2': labels2,
+        'data2': data2,
+        'labels3': labels3,
+        'quantities_sold': quantities_sold,
+        'sales_in_rubles': sales_in_rubles,
+        'labels4': labels4,
+        'data4': data4,
+    }
+
+    return render(request, 'sales/dashboard.html', context)

@@ -17,16 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.views import LoginView
+
+from main.views import page_not_found
+
 # from .user.views import profile, login, logout
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('main.urls')),
-    # path('login/', LoginView.as_view(), name='login'),
-    # path('login/', login, name='login'),
-    # path('profile/', profile, name='profile'),
-    # path('logout/', logout, name='logout'),
-    # path('', views.display_charts, name='index'),
-    # path('filters', views.filter_options,name='filter_options'),
-    # path('annual/<int:year>/sales', views.get_annual_sales, name='annual_chart'),
+    path('admin/', admin.site.urls, name='admin'),
+    path('', include('main.urls'), name='home'),
+    path('sales/', include('sales.urls')),
+    path('users/', include('users.urls', namespace='users')),
 ]
+
+handler404 = page_not_found
+
+admin.site.site_header = 'Панель администрирования'
+admin.site.index_title = 'Данные продаж'
