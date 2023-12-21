@@ -1,0 +1,31 @@
+#header {
+    background: #0dcaf0;
+}
+
+#site-name, #header a:link, #branding h1, #branding h1 a:link, #branding h1 a:visited{
+    font-family: 'Ysabeau', sans-serif;
+    color: #ffffff;
+}
+
+#content-related,  #content-main .module.app-sales, #content-main .module.app-auth {
+    border-radius: 10px;
+    border: solid  3px #0dcaf0;
+}
+
+#user-tools {
+    font-family: 'Ysabeau', sans-serif;
+    color: #fffcb3;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: #0dcaf0;
+}
+
+
+div.breadcrumbs {
+    background: #0dcaf0;
+}
+
+.module h2, .module caption, .inline-group h2{
+    background: #0dcaf0;
+}

@@ -1,0 +1,33 @@
+* {
+    font-family: 'Ysabeau', sans-serif;
+}
+
+div.my_container {
+    text-align: center;
+    justify-content: center;
+    margin: 0 auto;
+    width: 100%;
+}
+
+form {
+    max-width: 300px;
+    margin: auto;
+}
+
+.form-label {
+    margin-bottom: 5px;
+}
+
+.form-error {
+    list-style-type: none;
+    color: red;
+    margin-top: 5px;
+}
+
+button {
+    margin-top: 10px;
+}
+
+form p {
+    text-align: center;
+
